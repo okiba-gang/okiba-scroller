@@ -1,0 +1,23 @@
+{
+  "name": "okiba-scroller",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okiba-gang/okiba-scroller.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/okiba-gang/okiba-scroller/issues"
+  },
+  "homepage": "https://github.com/okiba-gang/okiba-scroller#readme",
+  "dependencies": {
+    "@okiba/arrays": "0.0.8",
+    "@okiba/dom": "0.0.10"
+  }
+}
