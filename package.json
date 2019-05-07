@@ -1,17 +1,35 @@
 {
   "name": "okiba-scroller",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Easily animate or run callbacks as your elements enter or leave viewport on scroll",
+  "main": "dist/okiba-scroller.js",
+  "module": "dist/okiba-scroller.esm.js",
+  "browser": "dist/okiba-scroller.umd.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c rollup.config.js",
+    "prepublish": "npm run build"
   },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "okiba",
+    "okibajs",
+    "scroll",
+    "animation",
+    "animations",
+    "intersection-observer",
+    "viewport"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/okiba-gang/okiba-scroller.git"
   },
-  "author": "",
-  "license": "ISC",
+  "contributors": [
+    "Alberto Parziale <alberto.parziale@caffeina.com> (http://lavolpechevola.com/)",
+    "Vincent De Feo <vincent.defeo@caffeina.com> (http://ghzmdr.github.io/)"
+  ],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/okiba-gang/okiba-scroller/issues"
   },
@@ -19,5 +37,14 @@
   "dependencies": {
     "@okiba/arrays": "0.0.8",
     "@okiba/dom": "0.0.10"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "rollup": "^1.11.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-node-resolve": "^4.2.3"
   }
 }
