@@ -43,7 +43,6 @@ function _defineProperty(obj, key, value) {
  * @module arrays
  * @description Array utils for okiba js
  */
-
 /**
  * Cast an array-like object or single element to Array
  * @example
@@ -53,20 +52,20 @@ function _defineProperty(obj, key, value) {
  * @param {any} castable Array to cast
  * @returns {Array} The array-like converted to Array, or an Array containing the element
  */
+
 function castArray(castable) {
-  if (castable === void 0) return castable
+  if (castable === void 0) return castable;
 
   if (castable instanceof Array) {
-    return castable
+    return castable;
   }
 
   if (castable.callee || castable instanceof NodeList || castable instanceof DOMTokenList) {
-    return Array.prototype.slice.call(castable)
+    return Array.prototype.slice.call(castable);
   }
 
-  return [castable]
+  return [castable];
 }
-
 /**
  * Removes an element from an array in-place without causing Garbage Collection
  * @example
@@ -76,8 +75,12 @@ function castArray(castable) {
  * @param {Array} array Array you want to remove an element from
  * @param {Number} index The index of the element to remove
  */
+
 function spliceOne(array, index) {
-  for (let i = index, k = i + 1, n = array.length; k < n; i += 1, k += 1) {array[i] = array[k];}
+  for (var i = index, k = i + 1, n = array.length; k < n; i += 1, k += 1) {
+    array[i] = array[k];
+  }
+
   --array.length;
 }
 
@@ -85,7 +88,6 @@ function spliceOne(array, index) {
  * @module  dom
  * @description Utilities to work with dom elements and selectors
  */
-
 /**
  * Selects an array of DOM Elements, scoped to element
  *
@@ -99,10 +101,11 @@ function spliceOne(array, index) {
  *
  * @return {Element[]} An array of DOM elements matching `selector`
  */
-function qsa(selector, element = document) {
-  return castArray(element.querySelectorAll(selector))
-}
 
+function qsa(selector) {
+  var element = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
+  return castArray(element.querySelectorAll(selector));
+}
 /**
  * Gets top and left offsets of an element
  *
@@ -116,9 +119,10 @@ function qsa(selector, element = document) {
  *
  * @return {Object} Object containing `top` and `left` offsets
  */
+
 function offset(el) {
-  let left = 0;
-  let top = 0;
+  var left = 0;
+  var top = 0;
 
   while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
     left += el.offsetLeft - (el.tagName !== 'BODY' ? el.scrollLeft : 0);
@@ -127,12 +131,10 @@ function offset(el) {
   }
 
   return {
-    top,
-    left
-  }
+    top: top,
+    left: left
+  };
 }
-
-
 /**
  * Useful to normalize parameters accepted by modules which work with dom nodes.
  * If you need to have an array of Elements and you want to accept any of: String, String array, Element, Element array
@@ -149,8 +151,9 @@ function offset(el) {
  *
  * @return {Element[]} An array of Elements
  */
+
 function getElements(target) {
-  let els;
+  var els;
 
   if (typeof target === 'string') {
     els = qsa(target);
@@ -166,17 +169,19 @@ function getElements(target) {
 
   if (target instanceof Array) {
     if (target[0] instanceof Node) {
-      return target
+      return target;
     } else if (typeof target[0] === 'string') {
-      els = target.reduce((acc, curr) => acc.concat(qsa(curr)), []);
+      els = target.reduce(function (acc, curr) {
+        return acc.concat(qsa(curr));
+      }, []);
     }
   }
 
   if (!els) {
-    throw new Error('No target provided')
+    throw new Error('No target provided');
   }
 
-  return els
+  return els;
 }
 
 var animators = [];
@@ -188,13 +193,13 @@ var currentAnimator = null;
 var currentObserved = null;
 var currentCallbacks = null;
 
-var ScrollAnimator =
+var OkibaScroller =
 /*#__PURE__*/
 function () {
-  function ScrollAnimator() {
+  function OkibaScroller() {
     var _this = this;
 
-    _classCallCheck(this, ScrollAnimator);
+    _classCallCheck(this, OkibaScroller);
 
     _defineProperty(this, "recalculate", function (_) {
       for (var i = 0; i < animators.length; i++) {
@@ -260,7 +265,7 @@ function () {
     this.addListeners();
   }
 
-  _createClass(ScrollAnimator, [{
+  _createClass(OkibaScroller, [{
     key: "observe",
     value: function observe(target, onInit, onCalculate) {
       var observed = getElements(target).map(function (el) {
@@ -398,12 +403,12 @@ function () {
     }
   }]);
 
-  return ScrollAnimator;
+  return OkibaScroller;
 }();
 
 var instance;
 function index () {
-  if (!instance) instance = new ScrollAnimator();
+  if (!instance) instance = new OkibaScroller();
   return instance;
 }
 

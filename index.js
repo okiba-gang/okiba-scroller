@@ -14,7 +14,7 @@ let currentAnimator = null
 let currentObserved = null
 let currentCallbacks = null
 
-class ScrollAnimator {
+class OkibaScroller {
   constructor() {
     scrollY = window.pageYOffset
     this.addListeners()
@@ -207,6 +207,6 @@ class ScrollAnimator {
 
 let instance
 export default function() {
-  if (!instance) instance = new ScrollAnimator()
+  if (!instance) instance = new OkibaScroller()
   return instance
 }

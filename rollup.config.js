@@ -1,7 +1,9 @@
 import resolve from 'rollup-plugin-node-resolve'
+
 import commonjs from 'rollup-plugin-commonjs'
 import pkg from './package.json'
 import babel from 'rollup-plugin-babel'
+import { uglify } from 'rollup-plugin-uglify'
 
 export default [
   // browser-friendly UMD build
@@ -9,14 +11,26 @@ export default [
     input: 'index.js',
     output: [{
       name: 'OkibaScroller',
-      file: pkg.browser,
+      file: 'dist/okiba-scroller.umd.js',
       format: 'umd'
     }],
     plugins: [
+      babel(),
       resolve(), // so Rollup can find external dependencies
-      babel({
-        exclude: 'node_modules/**'
-      }),
+      commonjs() // so Rollup can convert external deps to an ES module
+    ]
+  },
+  {
+    input: 'index.js',
+    output: [{
+      name: 'OkibaScroller',
+      file: 'dist/okiba-scroller.umd.min.js',
+      format: 'umd'
+    }],
+    plugins: [
+      babel(),
+      resolve(), // so Rollup can find external dependencies
+      uglify({sourcemap: true}),
       commonjs() // so Rollup can convert external deps to an ES module
     ]
   },
@@ -32,9 +46,7 @@ export default [
     external: ['ms'],
     plugins: [
       resolve(), // so Rollup can find external dependencies
-      babel({
-        exclude: 'node_modules/**'
-      }),
+      babel(),
       commonjs() // so Rollup can convert external deps to an ES module
     ],
     output: [
