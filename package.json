@@ -1,6 +1,6 @@
 {
   "name": "@okiba/scroller",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Easily animate or run callbacks as your elements enter or leave viewport on scroll",
   "main": "dist/okiba-scroller.js",
   "module": "dist/okiba-scroller.esm.js",
