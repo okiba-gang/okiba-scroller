@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title>Okiba scroller</title>
+    <style>
+      *, *:before, *:after {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        margin: 0;
+      }
+
+      .box-1,
+      .box-2 {
+        width: 100%;
+        height: 500px;
+
+        transition: background 0.5s;
+
+        background: red;
+      }
+      
+      .box-1.visible,
+      .box-2.visible {
+        background: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box-1"></div>
+    <div class="box-1"></div>
+    <div class="box-1"></div>
+    <div class="box-1"></div>
+    <div class="box-1"></div>
+    <div class="box-1"></div>
+    <div class="box-1"></div>
+    <div class="box-2"></div>
+    <div class="box-2"></div>
+    <div class="box-2"></div>
+    <div class="box-2"></div>
+    <div class="box-2"></div>
+    <div class="box-2"></div>
+    <div class="box-2"></div>
+
+    <script src="https://unpkg.com/@okiba/scroller@1.1.0/dist/okiba-scroller.umd.min.js"></script>
+    <script>
+      function onInit(observed) {
+        console.log('onInit', observed)
+      }
+
+      function onCalculate(observed) {
+        console.log('onCalculate', observed)
+      }
+
+      init()
+
+      function init() {
+        const animator = OkibaScroller()
+        setTimeout(function() {
+          animator.observe(
+            Array.from(document.querySelectorAll('.box-1')),
+            onInit,
+            onCalculate
+          ).add({
+            onEnter: function(observed) {
+              observed.el.classList.add('visible')
+            },
+            onExit: function(observed) {
+              observed.el.classList.remove('visible')
+            }
+          }).add({
+            onEnter: function(observed) {
+              console.log('2nd callback')
+            },
+            onExit: function(observed) {
+              console.log('2nd callback')
+            }
+          })
+
+          animator.observe(
+            Array.from(document.querySelectorAll('.box-2')),
+            onInit,
+            onCalculate
+          ).add({
+            onEnter: function(observed) {
+              observed.el.classList.add('visible')
+            },
+            onExit: function(observed) {
+              observed.el.classList.remove('visible')
+            }
+          }).add({
+            onEnter: function(observed) {
+              console.log('2nd callback')
+            },
+            onExit: function(observed) {
+              console.log('2nd callback')
+            }
+          })
+        }, 1000)
+      } 
+    </script>
+  </body>
+</html>
