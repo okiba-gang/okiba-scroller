@@ -147,7 +147,7 @@ class OkibaScroller {
   }
 
   onScroll= () => {
-    scrollY = window.pageYOffset
+    scrollY = Math.max(0, window.pageYOffset)
 
     this.stop()
     this.RAF()
