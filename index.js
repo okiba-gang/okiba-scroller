@@ -3,8 +3,9 @@ import {offset, getElements} from '@okiba/dom'
 import {spliceOne} from '@okiba/arrays'
 
 const animators = []
-
 let scrollY = 0
+let lastScrollY = 0
+let deltaScrollY = 0
 let RafID
 
 let isObservedRunning = false
@@ -17,6 +18,7 @@ let currentCallbacks = null
 class OkibaScroller {
   constructor() {
     scrollY = window.pageYOffset
+    lastScrollY = window.pageYOffset
     this.addListeners()
   }
 
@@ -30,9 +32,14 @@ class OkibaScroller {
     }
 
     animators.push(animator)
-    this.calculateOffset(animator)
 
-    if (onInit) onInit(animator)
+    if (onInit) {
+      animator.observed.forEach(o => {
+        onInit(o)
+      })
+    }
+
+    this.calculateOffset(animator)
 
     const add = function(callbacks) {
       animator.callbacks.push(callbacks)
@@ -101,14 +108,14 @@ class OkibaScroller {
     currentObserved.settings[callbackIndex].entered = false
 
     if (currentCallbacks.onExit) {
-      currentCallbacks.onExit(currentObserved, scrollY)
+      currentCallbacks.onExit(currentObserved, scrollY, deltaScrollY)
     }
   }
 
   animateIn(callbackIndex) {
     if (!currentObserved.settings[callbackIndex].entered) {
       currentObserved.settings[callbackIndex].entered = true
-      currentCallbacks.onEnter(currentObserved, scrollY)
+      currentCallbacks.onEnter(currentObserved, scrollY, deltaScrollY)
     }
 
     if (!currentCallbacks.onRaf && !currentCallbacks.onExit) {
@@ -127,7 +134,7 @@ class OkibaScroller {
       }
       if (currentCallbacks.onRaf) {
         isRafNeeded = true
-        currentCallbacks.onRaf(currentObserved, scrollY)
+        currentCallbacks.onRaf(currentObserved, scrollY, deltaScrollY)
       }
     } else {
       this.animateOut(callbackIndex)
@@ -147,7 +154,9 @@ class OkibaScroller {
   }
 
   onScroll= () => {
+    lastScrollY = scrollY
     scrollY = Math.max(0, window.pageYOffset)
+    deltaScrollY = scrollY - lastScrollY
 
     this.stop()
     this.RAF()
