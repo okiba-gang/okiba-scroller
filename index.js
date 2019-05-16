@@ -165,7 +165,10 @@ class OkibaScroller {
   }
 
   updateScroll() {
-    if (targetY == scrollY) return false
+    if (targetY == scrollY) {
+      deltaScrollY = 0
+      return false
+    }
 
     lastScrollY = scrollY
 
