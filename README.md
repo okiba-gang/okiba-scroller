@@ -47,10 +47,15 @@ function onCalculate(observed) {
   console.log('onCalculate', observed)
 }
 
+function onScroll(scrollY, deltaY) {
+  console.log('onCalculate', observed)
+}
+
 const observed = animator.observe(
   Array.from(document.querySelectorAll('.box-1')),
   onInit, // optional, called when element is added
   onCalculate // optional, called every time that the element position in calculated
+  onScroll, // optional, called when document scroll
 )
 ```
 
@@ -60,7 +65,7 @@ Now you can add multiple sets of callback
 observed.add({
   position: 'top', // optional, possible values are ['top', 'middle', 'bottom']
   offset: 0, // optional
-  onEnter: function(observed, scrollY) {
+  onEnter: function(observed, scrollY, deltaY) {
     // called when element enter in viewport based on position and offset settings
 
     // for example set an attribute
@@ -68,12 +73,12 @@ observed.add({
     // or add a css class
     observed.el.classList.add('visible');
   },
-  onRaf(): function(observed, scrollY) { 
+  onRaf(): function(observed, scrollY, deltaY) { 
     // optional, called when element is in viewport based on position and offset settings
     // ... example of canvas animation when in viewport
     console.log('onRaf', observed)
   },
-  onExit: function(observed, scrollY) { 
+  onExit: function(observed, scrollY, deltaY) { 
     // optional, called when element exit in viewport based on position and offset settings
     observed.el.classList.remove('visible')
   }
@@ -83,7 +88,7 @@ observed.add({
 An example to animate a canvas in viewport (animateOnce to false):
 ```js
 observed.add({
-  onRaf: function(observed, scrollY){
+  onRaf: function(observed, scrollY, deltaY){
     observed.ctx.clearRect(0,0,300,150);
     observed.ctx.fillStyle="red";
     observed.ctx.fillRect(0,0,300,150);
@@ -95,10 +100,10 @@ observed.add({
 or play video only in viewport:
 ```js
 observed.add({
-  onEnter: function(elem, scrollY){
+  onEnter: function(elem, scrollY, deltaY){
     elem.el.play();
   },
-  onExit: function(elem, scrollY){
+  onExit: function(elem, scrollY, deltaY){
     elem.el.pause();
   }
 });
