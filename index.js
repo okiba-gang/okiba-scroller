@@ -3,6 +3,7 @@ import {offset, getElements} from '@okiba/dom'
 import {spliceOne} from '@okiba/arrays'
 
 const animators = []
+let targetY = 0
 let scrollY = 0
 let lastScrollY = 0
 let deltaScrollY = 0
@@ -15,10 +16,18 @@ let currentAnimator = null
 let currentObserved = null
 let currentCallbacks = null
 
+let loopI = 0
+let loopJ = 0
+let loopK = 0
+
 class OkibaScroller {
-  constructor() {
+  constructor(options = {}) {
     scrollY = window.pageYOffset
     lastScrollY = window.pageYOffset
+    this.opts = options
+    this.smooth = options.smooth || false
+    // smooth factor
+    this.smoothF = options.smoothFactor || 0.2
     this.addListeners()
   }
 
@@ -115,7 +124,9 @@ class OkibaScroller {
   animateIn(callbackIndex) {
     if (!currentObserved.settings[callbackIndex].entered) {
       currentObserved.settings[callbackIndex].entered = true
-      currentCallbacks.onEnter(currentObserved, scrollY, deltaScrollY)
+      if (currentCallbacks.onEnter) {
+        currentCallbacks.onEnter(currentObserved, scrollY, deltaScrollY)
+      }
     }
 
     if (!currentCallbacks.onRaf && !currentCallbacks.onExit) {
@@ -153,10 +164,27 @@ class OkibaScroller {
     if (RafID) cancelAnimationFrame(RafID)
   }
 
-  onScroll= () => {
+  updateScroll() {
+    if (targetY == scrollY) return false
+
     lastScrollY = scrollY
-    scrollY = Math.max(0, window.pageYOffset)
+
+    if (this.smooth) {
+      scrollY += (targetY - scrollY) * this.smoothF
+      if (Math.abs(targetY - scrollY) < 1) {
+        scrollY = targetY
+      }
+    } else {
+      scrollY = targetY
+    }
+
     deltaScrollY = scrollY - lastScrollY
+
+    return true
+  }
+
+  onScroll= () => {
+    targetY = Math.max(0, window.pageYOffset)
 
     this.stop()
     this.RAF()
@@ -167,49 +195,51 @@ class OkibaScroller {
   }
 
   onRaf = () => {
-    isRafNeeded = false
-    for (let i = 0; i < animators.length; i++) {
-      currentAnimator = animators[i]
+    isRafNeeded = this.updateScroll()
 
-      for (let j = 0; j < currentAnimator.observed.length; j++) {
-        currentObserved = currentAnimator.observed[j]
+    for (loopI = 0; loopI < animators.length; loopI++) {
+      currentAnimator = animators[loopI]
+
+      for (loopJ = 0; loopJ < currentAnimator.observed.length; loopJ++) {
+        currentObserved = currentAnimator.observed[loopJ]
         isObservedRunning = false
 
-        for (let k = 0; k < currentAnimator.callbacks.length; k++) {
-          if (!currentObserved.settings[k].enable) continue
+        for (loopK = 0; loopK < currentAnimator.callbacks.length; loopK++) {
+          if (!currentObserved.settings[loopK].enable) continue
 
-          currentCallbacks = currentAnimator.callbacks[k]
+          currentCallbacks = currentAnimator.callbacks[loopK]
           isObservedRunning = true
-          this.animateObserved(k)
+          this.animateObserved(loopK)
         }
 
         if (!isObservedRunning) {
           currentObserved = null
-          spliceOne(currentAnimator.observed, j)
-          j--
+          spliceOne(currentAnimator.observed, loopJ)
+          loopJ--
         }
 
         if (currentAnimator.observed.length < 1) {
           currentAnimator = null
-          spliceOne(animators, i)
-          i--
+          spliceOne(animators, loopI)
+          loopI--
           break
         }
       }
 
       if (isRafNeeded) {
+        this.stop()
         this.RAF()
       }
     }
   }
 
   addListeners() {
-    window.addEventListener('scroll', this.onScroll)
+    window.addEventListener('scroll', this.onScroll, {passive: true})
     window.addEventListener('resize', this.onResize)
   }
 
   removeListeners() {
-    window.addEventListener('scroll', this.onScroll)
+    window.addEventListener('scroll', this.onScroll, {passive: true})
     window.addEventListener('resize', this.onResize)
   }
 }
