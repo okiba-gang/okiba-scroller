@@ -20,6 +20,8 @@ let loopI = 0
 let loopJ = 0
 let loopK = 0
 
+let ticking = false
+
 class OkibaScroller {
   constructor(options = {}) {
     scrollY = window.pageYOffset
@@ -27,16 +29,17 @@ class OkibaScroller {
     this.opts = options
     this.smooth = options.smooth || false
     // smooth factor
-    this.smoothF = options.smoothFactor || 0.2
+    this.smoothF = options.smoothFactor || 0.1
     this.addListeners()
   }
 
-  observe(target, onInit, onCalculate) {
+  observe(target, onInit, onCalculate, onScroll) {
     const observed = getElements(target).map(el => ({el}))
 
     const animator = {
       observed,
       onCalculate,
+      onScroll,
       callbacks: [],
     }
 
@@ -109,6 +112,7 @@ class OkibaScroller {
       }
       if (animator.onCalculate) animator.onCalculate(observed)
     }
+    animator.observed.sort((a, b) => a.top > b.top)
   }
 
   animateOut(callbackIndex) {
@@ -153,7 +157,10 @@ class OkibaScroller {
   }
 
   RAF = () =>{
-    RafID = requestAnimationFrame(this.onRaf)
+    if (!ticking) {
+      RafID = requestAnimationFrame(this.onRaf)
+      ticking = true
+    }
   }
 
   reset() {
@@ -174,9 +181,6 @@ class OkibaScroller {
 
     if (this.smooth) {
       scrollY += (targetY - scrollY) * this.smoothF
-      if (Math.abs(targetY - scrollY) < 1) {
-        scrollY = targetY
-      }
     } else {
       scrollY = targetY
     }
@@ -188,8 +192,6 @@ class OkibaScroller {
 
   onScroll= () => {
     targetY = Math.max(0, window.pageYOffset)
-
-    this.stop()
     this.RAF()
   }
 
@@ -198,20 +200,23 @@ class OkibaScroller {
   }
 
   onRaf = () => {
+    ticking = false
     isRafNeeded = this.updateScroll()
 
     for (loopI = 0; loopI < animators.length; loopI++) {
       currentAnimator = animators[loopI]
-
+      if (currentAnimator.onScroll) currentAnimator.onScroll(scrollY, deltaScrollY)
       for (loopJ = 0; loopJ < currentAnimator.observed.length; loopJ++) {
         currentObserved = currentAnimator.observed[loopJ]
         isObservedRunning = false
-
         for (loopK = 0; loopK < currentAnimator.callbacks.length; loopK++) {
           if (!currentObserved.settings[loopK].enable) continue
-
-          currentCallbacks = currentAnimator.callbacks[loopK]
           isObservedRunning = true
+          if (currentObserved.settings[loopK].top > scrollY) {
+            loopJ = currentAnimator.observed.length
+            continue
+          }
+          currentCallbacks = currentAnimator.callbacks[loopK]
           this.animateObserved(loopK)
         }
 
@@ -230,7 +235,6 @@ class OkibaScroller {
       }
 
       if (isRafNeeded) {
-        this.stop()
         this.RAF()
       }
     }
